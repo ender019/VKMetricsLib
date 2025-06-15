@@ -1,10 +1,13 @@
 #pragma once
 #include <string>
 
-class IMetric
+namespace metrics
 {
-public:
-    virtual void aggregate(std::stringstream& out) = 0;
+    class IMetric
+    {
+    public:
+        virtual void aggregate(std::stringstream& out) = 0; // Подсчет метрик
 
-    virtual ~IMetric() = default;
-};
+        virtual ~IMetric() = default;
+    };
+}

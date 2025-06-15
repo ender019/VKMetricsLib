@@ -9,33 +9,37 @@
 #include <thread>
 #include <functional>
 
-class MetricsCollector
+namespace metrics
 {
-private:
-    std::map<std::string, std::shared_ptr<IMetric>> _metrics;
-    std::chrono::milliseconds _delay;
-    std::thread _metric_thread;
-    std::unique_ptr<IWriter> _writer;
-    std::atomic<bool> _active;
+    class MetricsCollector
+    {
+    private:
+        std::map<std::string, std::shared_ptr<IMetric>> _metrics;
+        std::chrono::milliseconds _delay;
+        std::thread _metric_thread;
+        std::unique_ptr<IWriter> _writer;
+        std::atomic<bool> _active;
 
-    void get_time(std::stringstream& out);
-    void main_loop();
+        void get_time(std::stringstream& out);
+        void main_loop();
 
-public:
-    MetricsCollector();
+    public:
+        MetricsCollector();
 
-    void start();
-    void stop();
+        void start();
+        void stop();
 
-    MetricsCollector& set_delay(long long delay);
-    MetricsCollector& set_writer(const IWriter& writer);
+        MetricsCollector& set_delay(long long delay);
+        MetricsCollector& set_writer(const IWriter& writer);
 
-    template<typename T>
-    std::function<void(const T&)> register_metric(std::string name, std::function<T(const std::vector<T>&)> func) {
-        auto metric = std::make_shared<Metric<T>>(name, func);
-        _metrics[name] = metric;
-        return [metric](const T& value) { metric->add_value(value); };
-    }
+        template<typename T>
+        std::function<void(const T&)> register_metric(std::string name, std::function<T(const std::vector<T>&)> func) {
+            auto metric = std::make_shared<Metric<T>>(name, func);
+            _metrics[name] = metric;
+            return [metric](const T& value) { metric->add_value(value); };
+        }
 
-    ~MetricsCollector();
-};
+        ~MetricsCollector();
+    };
+    
+}

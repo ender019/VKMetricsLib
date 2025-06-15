@@ -3,8 +3,8 @@
 
 
 int main() {
-    MetricsCollector collector;
-    collector.set_writer(FileWriter("metrics.log"));
+    metrics::MetricsCollector collector;
+    collector.set_writer(metrics::FileWriter("metrics.log"));
     collector.set_delay(1000);
     
     // Регистрация метрики CPU (среднее значение)
