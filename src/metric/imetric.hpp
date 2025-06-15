@@ -4,6 +4,7 @@
 class IMetric
 {
 public:
-    virtual std::string aggregate() = 0;
+    virtual void aggregate(std::stringstream& out) = 0;
+
     virtual ~IMetric() = default;
 };

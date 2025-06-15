@@ -1,10 +1,10 @@
 #pragma once
-#include "src/metric/imetric.hpp"
-#include "src/writer/iwriter.hpp"
+#include "metric.hpp"
+#include "iwriter.hpp"
 #include <vector>
 #include <chrono>
 #include <atomic>
-#include <queue>
+#include <vector>
 #include <map>
 #include <thread>
 #include <functional>
@@ -16,20 +16,26 @@ private:
     std::chrono::milliseconds _delay;
     std::thread _metric_thread;
     std::unique_ptr<IWriter> _writer;
-    std::atomic<bool> active;
+    std::atomic<bool> _active;
 
-    std::string get_time();
+    void get_time(std::stringstream& out);
+    void main_loop();
+
 public:
     MetricsCollector();
 
     void start();
     void stop();
 
-    MetricsCollector set_delay(long long delay);
-    MetricsCollector set_writer(IWriter* writer);
+    MetricsCollector& set_delay(long long delay);
+    MetricsCollector& set_writer(const IWriter& writer);
 
     template<typename T>
-    MetricsCollector register_metric(std::string name, std::function<T(const std::queue<T>&)> func);
+    std::function<void(const T&)> register_metric(std::string name, std::function<T(const std::vector<T>&)> func) {
+        auto metric = std::make_shared<Metric<T>>(name, func);
+        _metrics[name] = metric;
+        return [metric](const T& value) { metric->add_value(value); };
+    }
 
-    ~MetricsCollector();
+    ~MetricsCollector() = default;
 };
