@@ -39,7 +39,6 @@ void MetricsCollector::start() {
 }
 
 void MetricsCollector::stop() {
-    // std::this_thread::sleep_for(std::chrono::milliseconds(1100));
     _active.store(0, std::memory_order_relaxed);
     if(_metric_thread.joinable()) _metric_thread.join();
 }

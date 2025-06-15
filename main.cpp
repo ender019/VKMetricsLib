@@ -27,7 +27,7 @@ int main() {
     
     // Имитация работы системы
 
-    auto load_test = [&](int kol = 50, int delay = 100) {
+    auto load_test = [=](int kol = 50, int delay = 100) {
         for (int i = 0; i < kol; ++i) {
             add_cpu_metric(0.5 + i * 0.2); // Пример значения CPU
             add_http_metric(i * 10);        // Пример количества запросов
@@ -35,7 +35,15 @@ int main() {
         }
     };
 
+    std::thread t1(load_test, 500, 10);
+    std::thread t2(load_test, 50, 150);
+    std::thread t3(load_test, 30, 200);
+    
     load_test();
+
+    t1.join();
+    t2.join();
+    t3.join();
 
     return 0;
 }
