@@ -37,5 +37,5 @@ public:
         return [metric](const T& value) { metric->add_value(value); };
     }
 
-    ~MetricsCollector() = default;
+    ~MetricsCollector();
 };

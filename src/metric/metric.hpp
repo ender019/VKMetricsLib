@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include <mutex>
+#include <iostream>
 
 template<typename T>
 class Metric: public IMetric
@@ -26,7 +27,7 @@ public:
         {
             std::lock_guard<std::mutex> lock(_mutex);
             _values.swap(measures);
-            out<<_func(measures);
         }
+        out<<_func(measures);
     }
 };
