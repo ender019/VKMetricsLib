@@ -10,9 +10,13 @@ void MetricsCollector::get_time(std::stringstream& out) {
 }
 
 void MetricsCollector::main_loop() {
+    auto lbegin = std::chrono::steady_clock::now();
     while (_active.load(std::memory_order_relaxed))
     {
-        auto lbegin = std::chrono::steady_clock::now();
+        auto lend = std::chrono::steady_clock::now();
+        auto stime = lbegin + _delay - lend;
+        if(stime > std::chrono::milliseconds(0)) std::this_thread::sleep_for(stime);
+        lbegin = std::chrono::steady_clock::now();
 
         std::stringstream out;
         get_time(out);
@@ -23,11 +27,6 @@ void MetricsCollector::main_loop() {
             out<<' ';
         }
         _writer->write(out.str());
-
-        auto lend = std::chrono::steady_clock::now();
-        auto stime = lbegin + _delay - lend;
-        if(stime > std::chrono::milliseconds(0)) 
-            std::this_thread::sleep_for(stime);
     }
     
 }
@@ -40,8 +39,9 @@ void MetricsCollector::start() {
 }
 
 void MetricsCollector::stop() {
+    // std::this_thread::sleep_for(std::chrono::milliseconds(1100));
     _active.store(0, std::memory_order_relaxed);
-    if(!_metric_thread.joinable()) _metric_thread.join();
+    if(_metric_thread.joinable()) _metric_thread.join();
 }
 
 MetricsCollector& MetricsCollector::set_delay(long long delay) {
@@ -52,4 +52,8 @@ MetricsCollector& MetricsCollector::set_delay(long long delay) {
 MetricsCollector& MetricsCollector::set_writer(const IWriter& writer){
     _writer = writer.clone();
     return *this;
+}
+
+MetricsCollector::~MetricsCollector() {
+    stop();
 }

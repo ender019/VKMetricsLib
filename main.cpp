@@ -1,6 +1,7 @@
 #include "MetricsLib.hpp"
 #include "filewriter.hpp"
 
+
 int main() {
     MetricsCollector collector;
     collector.set_writer(FileWriter("metrics.log"));
@@ -25,12 +26,16 @@ int main() {
     collector.start();
     
     // Имитация работы системы
-    for (int i = 0; i < 5; ++i) {
-        add_cpu_metric(0.5 + i * 0.2); // Пример значения CPU
-        add_http_metric(i * 10);        // Пример количества запросов
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    auto load_test = [&](int kol = 50, int delay = 100) {
+        for (int i = 0; i < kol; ++i) {
+            add_cpu_metric(0.5 + i * 0.2); // Пример значения CPU
+            add_http_metric(i * 10);        // Пример количества запросов
+            std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        }
+    };
+
+    load_test();
+
     return 0;
 }
