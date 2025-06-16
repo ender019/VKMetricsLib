@@ -1,35 +1,45 @@
 #pragma once
-#include "src/metric/imetric.hpp"
-#include "src/writer/iwriter.hpp"
+#include "metric.hpp"
+#include "iwriter.hpp"
 #include <vector>
 #include <chrono>
 #include <atomic>
-#include <queue>
+#include <vector>
 #include <map>
 #include <thread>
 #include <functional>
 
-class MetricsCollector
+namespace metrics
 {
-private:
-    std::map<std::string, std::shared_ptr<IMetric>> _metrics;
-    std::chrono::milliseconds _delay;
-    std::thread _metric_thread;
-    std::unique_ptr<IWriter> _writer;
-    std::atomic<bool> active;
+    class MetricsCollector
+    {
+    private:
+        std::map<std::string, std::shared_ptr<IMetric>> _metrics;
+        std::chrono::milliseconds _delay;
+        std::thread _metric_thread;
+        std::unique_ptr<IWriter> _writer;
+        std::atomic<bool> _active;
 
-    std::string get_time();
-public:
-    MetricsCollector();
+        void get_time(std::stringstream& out);
+        void main_loop();
 
-    void start();
-    void stop();
+    public:
+        MetricsCollector();
 
-    MetricsCollector set_delay(long long delay);
-    MetricsCollector set_writer(IWriter* writer);
+        void start();
+        void stop();
 
-    template<typename T>
-    MetricsCollector register_metric(std::string name, std::function<T(const std::queue<T>&)> func);
+        MetricsCollector& set_delay(long long delay);
+        MetricsCollector& set_writer(const IWriter& writer);
 
-    ~MetricsCollector();
-};
+        template<typename T>
+        std::function<void(const T&)> register_metric(std::string name, std::function<T(const std::vector<T>&)> func) {
+            auto metric = std::make_shared<Metric<T>>(name, func);
+            _metrics[name] = metric;
+            return [metric](const T& value) { metric->add_value(value); };
+        }
+
+        ~MetricsCollector();
+    };
+    
+}
