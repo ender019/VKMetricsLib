@@ -1,6 +1,6 @@
 #pragma once
-#include "metric.hpp"
-#include "iwriter.hpp"
+#include "metrics/metric.hpp"
+#include "writers/iwriter.hpp"
 #include <vector>
 #include <chrono>
 #include <atomic>
