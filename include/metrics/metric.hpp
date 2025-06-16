@@ -1,9 +1,9 @@
 #pragma once
-#include "imetric.hpp"
+#include "metrics/imetric.hpp"
 #include <vector>
 #include <functional>
 #include <mutex>
-#include <iostream>
+#include <sstream>
 
 namespace metrics
 {
@@ -15,6 +15,7 @@ namespace metrics
         std::function<T(const std::vector<T>&)> _func;
         std::vector<T> _values;
         mutable std::mutex _mutex;
+        
     public:
         Metric(std::string name, std::function<T(const std::vector<T>&)> func):
             _name(name), _func(func) {}
